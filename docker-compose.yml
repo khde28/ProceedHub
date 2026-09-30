@@ -1,0 +1,34 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: proceedhub-app
+    ports:
+      - "8086:8086"
+    environment:
+      - DB_URL=jdbc:postgresql://db:5432/proceedhub
+      - DB_USERNAME=devrick
+      - DB_PASSWORD=958101
+      - PORT=8086
+      - JWT_TOKEN=46812e1625ddd68cf57e193f035778ddc8a653ef2aa4cd68aa15af7bac06a46
+      - JWT_EXPIRATION=3600000
+      - CORS_ALLOWED_ORIGINS=http://localhost:5173
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: postgres:15-alpine
+    container_name: proceedhub-db
+    environment:
+      - POSTGRES_USER=devrick
+      - POSTGRES_PASSWORD=958101
+      - POSTGRES_DB=proceedhub
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U devrick -d proceedhub"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
